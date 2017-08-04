@@ -19,12 +19,7 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -432,19 +427,31 @@ public class CredentialsTest {
     public void testRemoteReferencesWithCredentials() throws Exception {
         addCredential(username, password, privateKey);
         Map<String, ObjectId> remoteReferences;
-        switch (random.nextInt(4)) {
+        switch (random.nextInt(8)) {
             default:
             case 0:
-                remoteReferences = git.getRemoteReferences(gitRepoURL, null, true, false);
+                remoteReferences = git.getRemoteReferences(gitRepoURL, (String)null, true, false);
                 break;
             case 1:
-                remoteReferences = git.getRemoteReferences(gitRepoURL, null, true, true);
+                remoteReferences = git.getRemoteReferences(gitRepoURL, (String)null, true, true);
                 break;
             case 2:
                 remoteReferences = git.getRemoteReferences(gitRepoURL, "master", true, false);
                 break;
             case 3:
                 remoteReferences = git.getRemoteReferences(gitRepoURL, "master", true, true);
+                break;
+            case 4:
+                remoteReferences = git.getRemoteReferences(gitRepoURL, (List<String>)null, true, false);
+                break;
+            case 5:
+                remoteReferences = git.getRemoteReferences(gitRepoURL, (List<String>)null, true, true);
+                break;
+            case 6:
+                remoteReferences = git.getRemoteReferences(gitRepoURL, new ArrayList<>(Arrays.asList("master")), true, false);
+                break;
+            case 7:
+                remoteReferences = git.getRemoteReferences(gitRepoURL, new ArrayList<>(Arrays.asList("master")), true, true);
                 break;
         }
         assertThat(remoteReferences.keySet(), hasItems("refs/heads/master"));

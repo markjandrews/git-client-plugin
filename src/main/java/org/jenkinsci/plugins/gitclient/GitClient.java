@@ -620,6 +620,25 @@ public interface GitClient {
     Map<String, ObjectId> getRemoteReferences(String remoteRepoUrl, String pattern, boolean headsOnly, boolean tagsOnly) throws GitException, InterruptedException;
 
     /**
+     * List references in a remote repository. Equivalent to <tt>git ls-remote [--heads] [--tags] &lt;repository&gt; [&lt;refs&gt; &lt;refs&gt; ... &lt;refs&gt;]</tt>.
+     *
+     * @param remoteRepoUrl
+     *      Remote repository URL.
+     * @param patterns
+     *      Only references matching the given patterns are displayed.
+     * @param headsOnly
+     *      Limit to only refs/heads.
+     * @param tagsOnly
+     *      Limit to only refs/tags.
+     *      headsOnly and tagsOnly are not mutually exclusive;
+     *      when both are true, references stored in refs/heads and refs/tags are displayed.
+     * @return a map of reference names and their commit hashes. Empty if none.
+     * @throws hudson.plugins.git.GitException if underlying git operation fails.
+     * @throws java.lang.InterruptedException if interrupted.
+     */
+    Map<String, ObjectId> getRemoteReferences(String remoteRepoUrl, List<String> patterns, boolean headsOnly, boolean tagsOnly) throws GitException, InterruptedException;
+
+    /**
      * List symbolic references in a remote repository. Equivalent to <tt>git ls-remote --symref &lt;repository&gt;
      * [&lt;refs&gt;]</tt>. Note: the response may be empty for multiple reasons
      *

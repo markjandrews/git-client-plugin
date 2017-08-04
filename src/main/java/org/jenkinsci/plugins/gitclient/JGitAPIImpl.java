@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.lang.reflect.Field;
@@ -758,12 +759,31 @@ public class JGitAPIImpl extends LegacyCompatibleGitAPIImpl {
 
     /** {@inheritDoc} */
     public Map<String, ObjectId> getRemoteReferences(String url, String pattern, boolean headsOnly, boolean tagsOnly)
-            throws GitException, InterruptedException {
-        Map<String, ObjectId> references = new HashMap<>();
-        String regexPattern = null;
-        if (pattern != null) {
-            regexPattern = createRefRegexFromGlob(pattern);
+            throws GitException, InterruptedException
+    {
+        List<String> patterns = new ArrayList<>();
+
+        if (pattern != null)
+        {
+            patterns.add(pattern);
         }
+
+        return getRemoteReferences(url, patterns, headsOnly, tagsOnly);
+    }
+
+    /** {@inheritDoc} */
+    public Map<String, ObjectId> getRemoteReferences(String url, List<String> patterns, boolean headsOnly, boolean tagsOnly)
+            throws GitException, InterruptedException
+    {
+        Map<String, ObjectId> references = new HashMap<>();
+        List<String> regexPatterns = new ArrayList<>();
+
+        if (patterns != null) {
+            for (String pattern: patterns) {
+                regexPatterns.add(createRefRegexFromGlob(pattern));
+            }
+        }
+
         try (Repository repo = openDummyRepository()) {
             LsRemoteCommand lsRemote = new LsRemoteCommand(repo);
             if (headsOnly) {
@@ -779,9 +799,12 @@ public class JGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                     final String refName = r.getName();
                     final ObjectId refObjectId =
                             r.getPeeledObjectId() != null ? r.getPeeledObjectId() : r.getObjectId();
-                    if (regexPattern != null) {
-                        if (refName.matches(regexPattern)) {
-                            references.put(refName, refObjectId);
+
+                    if (patterns != null) {
+                        for (String regexPattern : regexPatterns) {
+                            if (refName.matches(regexPattern)) {
+                                references.put(refName, refObjectId);
+                            }
                         }
                     } else {
                         references.put(refName, refObjectId);

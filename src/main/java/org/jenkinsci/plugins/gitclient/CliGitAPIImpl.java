@@ -2710,7 +2710,21 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
 
     /** {@inheritDoc} */
     public Map<String, ObjectId> getRemoteReferences(String url, String pattern, boolean headsOnly, boolean tagsOnly)
-            throws GitException, InterruptedException {
+            throws GitException, InterruptedException
+    {
+        List<String> patterns = new ArrayList<>();
+
+        if (null != pattern)
+        {
+            patterns.add(pattern);
+        }
+
+        return getRemoteReferences(url, patterns, headsOnly, tagsOnly);
+    }
+
+    /** {@inheritDoc} */
+    public Map<String, ObjectId> getRemoteReferences(String url, List<String> patterns, boolean headsOnly, boolean tagsOnly) throws GitException, InterruptedException
+    {
         ArgumentListBuilder args = new ArgumentListBuilder("ls-remote");
         if (headsOnly) {
             args.add("-h");
@@ -2718,9 +2732,12 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
         if (tagsOnly) {
             args.add("-t");
         }
+
         args.add(url);
-        if (pattern != null) {
-            args.add(pattern);
+        if (patterns != null) {
+            for (String pattern: patterns) {
+                args.add(pattern);
+            }
         }
 
         StandardCredentials cred = credentials.get(url);
